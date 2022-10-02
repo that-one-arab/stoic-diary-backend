@@ -189,9 +189,19 @@ def autocomplete(request):
     request_body = json.loads(request.body)
     autocomplete_string = request_body["autocompleteString"]
 
+    # Define a function that translated the section's name into its respective number identifier
+    def translate_section_type(section_name):
+        if section_name == 'whatWentWrong':
+            return 1
+        elif section_name == 'whatWentRight':
+            return 2
+        elif section_name == 'whatCanBeImproved':
+            return 3
+    section_type = translate_section_type(request_body["sectionName"])
+
     # Get the lines query set using the above autocomplete_string to find sentences that are similar, and make sure
     # there are no duplicates
-    linesQueryset = Line.objects.filter(text__icontains=autocomplete_string, user=request.user).distinct('text')
+    linesQueryset = Line.objects.filter(text__icontains=autocomplete_string, user=request.user, section_type=section_type).distinct('text')
 
     # Map over the queryset to return only text and store it into a list
     lines = list(map(lambda line: {"value": line.text, "id": line.id}, linesQueryset))

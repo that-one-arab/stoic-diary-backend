@@ -154,6 +154,17 @@ def autocomplete(req, res, method):
         res["status_code"] = status.HTTP_400_BAD_REQUEST
         res["details"] = "Bad Request Body"
         res["errors"] = validation.errors
+        return res
+
+    # Check if sectionName value is correct so that it can be correctly parsed into its respective number identifier
+    section_name = req['sectionName']
+    if section_name != 'whatWentWrong' and section_name != 'whatWentRight' and section_name != 'whatCanBeImproved':
+        res["success"] = False
+        res["status_code"] = status.HTTP_400_BAD_REQUEST
+        res["details"] = "Bad Request Body"
+        res["errors"] = [
+            "'sectionName' field must be one of the following values: ('whatWentWrong', 'whatWentRight' , 'whatCanBeImproved')"]
+
     return res
 
 

@@ -78,3 +78,4 @@ class PagesSerializer(serializers.Serializer):
 
 class AutocompleteSerializer(serializers.Serializer):
     autocompleteString = serializers.CharField(required=True)
+    sectionName = serializers.CharField(required=True)
