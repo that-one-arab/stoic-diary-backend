@@ -1,6 +1,5 @@
 .env
 # Hopefully I'm ignoring the right dir here
-data
 lib
 lib64
 share
