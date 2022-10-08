@@ -77,8 +77,8 @@ def login(request):
         # username or password is incorrect
         return JsonResponse({
             "success": False,
-            "details": "Login failed, please check your username and/or password",
-            "errors": ["Login failed, please check your username and/or password"],
+            "details": "Login failed, please check your email and/or password",
+            "errors": ["Login failed, please check your email and/or password"],
             "status_code": status.HTTP_401_UNAUTHORIZED,
         }, status=status.HTTP_401_UNAUTHORIZED)
 
