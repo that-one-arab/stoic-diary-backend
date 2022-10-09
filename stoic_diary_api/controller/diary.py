@@ -15,36 +15,9 @@ from .. import validators
 @require_logged_in
 def pages(request):
     def POST_handler():
-        # Attempt to validate the request.body according to "/pages" route body requirements
-        validation = validators.validate(request, "/pages")
-        if not validation["success"]:
-            # errors and info and stuff will be returned in the 'validation' dict
-            return JsonResponse(validation, status=validation["status_code"])
-
-        # Unload the request.body date, what went wrong, what went right and what can be improved fields
-        request_body = json.loads(request.body)
-        date = request_body["date"]
-        what_went_wrong = request_body["whatWentWrong"]
-        what_went_right = request_body["whatWentRight"]
-        what_can_be_improved = request_body["whatCanBeImproved"]
-
-        try:
-            """
-            Dates cannot be duplicate (can't have 2 diary entries for the same date.) so if
-            an object with request.body.date is fetched, return an error 
-            """
-            no_duplicate_date_validation = DiaryPage.objects.get(
-                user=request.user, date=date)
-            return JsonResponse({
-                "success": False,
-                "details": "A diary page for this date already exists",
-                "errors": ["A diary page for this date already exists"],
-                "status_code": status.HTTP_403_FORBIDDEN,
-            }, status=status.HTTP_403_FORBIDDEN)
-        # If we get this exception, everything is gucci
-        except DiaryPage.DoesNotExist:
+        def handle_return_page(user, date, what_went_wrong, what_went_right, what_can_be_improved):
             # Create a new page object
-            page = DiaryPage(user=request.user, date=date)
+            page = DiaryPage(user=user, date=date)
 
             # Save it in the db
             page.save()
@@ -67,6 +40,39 @@ def pages(request):
                 "errors": None,
                 "status_code": status.HTTP_201_CREATED,
             }, status=status.HTTP_201_CREATED)
+
+        # Attempt to validate the request.body according to "/pages" route body requirements
+        validation = validators.validate(request, "/pages")
+        if not validation["success"]:
+            # errors and info and stuff will be returned in the 'validation' dict
+            return JsonResponse(validation, status=validation["status_code"])
+
+        # Unload the request.body date, what went wrong, what went right and what can be improved fields
+        request_body = json.loads(request.body)
+        date = request_body["date"]
+        what_went_wrong = request_body["whatWentWrong"]
+        what_went_right = request_body["whatWentRight"]
+        what_can_be_improved = request_body["whatCanBeImproved"]
+
+        try:
+            """
+            Dates cannot be duplicate (can't have 2 diary entries for the same date.) so if
+            an object with request.body.date is fetched, return an error 
+            """
+            no_duplicate_date_validation = DiaryPage.objects.get(
+                user=request.user, date=date)
+
+            if not no_duplicate_date_validation.is_page_empty():
+                return JsonResponse({
+                    "success": False,
+                    "details": "A diary page for this date already exists",
+                    "errors": ["A diary page for this date already exists"],
+                    "status_code": status.HTTP_403_FORBIDDEN,
+                }, status=status.HTTP_403_FORBIDDEN)
+            return handle_return_page(request.user, date, what_went_wrong, what_went_right, what_can_be_improved)
+        except DiaryPage.DoesNotExist:
+            return handle_return_page(request.user, date, what_went_wrong, what_went_right, what_can_be_improved)
+
 
     def PUT_handler():
         # Attempt to validate the request.body according to "/pages" route body requirements
