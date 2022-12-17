@@ -1,3 +1,5 @@
+Frontend is [here](https://github.com/that-one-arab/stoic-diary-frontend)
+
 # How to run:
 - Make sure docker and docker-compose are installed
 - Create a `.env`file in the project's root directly, modify the file referencing the provided `.env.example` and save the newly modified `.env` file
